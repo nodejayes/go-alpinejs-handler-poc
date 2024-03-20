@@ -1,0 +1,51 @@
+package template
+
+templ Index(alpineStoreScripts string) {
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <title>Todo App</title>
+      @templ.Raw(alpineStoreScripts)
+      <style>
+        * {
+          font-family: system-ui;
+          font-size: 15px;
+          margin: 0;
+          padding: 0;
+        }
+        html, body {
+          width: 100vw;
+          height: 100vh;
+        }
+        div.app {
+          display: flex;
+          width: 100vw;
+          height: 100vh;
+          align-items: center;
+          justify-content: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="app">
+        <div class="app-wrapper">
+          <div x-data="{name:''}" class="todo-input">
+            <input type="text" x-model="name" />
+            <button @click="$store.todo.emit({operation:'add',value:{id:'',name:name,open:false}})">+</button>
+          </div>
+          <div x-data="$store.todo.state" x-init="$store.todo.emit({operation:'get'})" class="todo-list">
+            <ul>
+              <template x-for="todo in todos">
+                <li>
+                  <input type="checkbox" :value="todo.open" @change="$store.todo.emit({operation:'toggle',value:todo.id})" />
+                  <span x-text="todo.name"></span>
+                  <button @click="$store.todo.emit({operation:'remove',value:todo.id})">X</button>
+                </li>
+              </template>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
+}

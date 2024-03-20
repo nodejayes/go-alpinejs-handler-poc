@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	anythingparsejson "github.com/nodejayes/anything-parse-json"
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 	"github.com/nodejayes/go-alpinejs-handler-poc/counter_app/state"
@@ -26,7 +27,7 @@ func (ctx *Counter) GetActionType() string {
 	return fmt.Sprintf("[%s] operation", ctx.GetName())
 }
 
-func (ctx *Counter) Authorized(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool) error {
+func (ctx *Counter) Authorized(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) error {
 	return nil
 }
 
@@ -40,18 +41,13 @@ func (ctx *Counter) GetDefaultState() string {
 	return string(stream)
 }
 
-func (ctx *Counter) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool) {
-	content, err := json.Marshal(msg.Payload)
-	if err != nil {
-		return
-	}
-	var args CounterArguments
-	err = json.Unmarshal(content, &args)
+func (ctx *Counter) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
+	args, err := anythingparsejson.Parse[CounterArguments](msg.Payload)
 	if err != nil {
 		return
 	}
 
-	clientId := req.Header.Get("clientId")
+	clientId := tools.GetClientId(req)
 	state := di.Inject[state.Counter](clientId)
 	if state == nil {
 		return
