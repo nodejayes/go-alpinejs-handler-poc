@@ -10,6 +10,8 @@ import "context"
 import "io"
 import "bytes"
 
+import "github.com/nodejayes/go-alpinejs-handler-poc/components"
+
 func Index(alpineStoreScripts string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templ_7745c5c3_W.(*bytes.Buffer)
@@ -40,11 +42,20 @@ func Index(alpineStoreScripts string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script defer src=\"https://unpkg.com/alpinejs-component@latest/dist/component.min.js\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := `
+		templ_7745c5c3_Var3 := ``
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><style type=\"text/css\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var4 := `
         * {
           font-family: system-ui;
           font-size: 15px;
@@ -63,29 +74,51 @@ func Index(alpineStoreScripts string) templ.Component {
           justify-content: center;
         }
       `
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</style></head><body><div class=\"app\"><div class=\"app-wrapper\"><div x-data=\"{name:&#39;&#39;}\" class=\"todo-input\"><input type=\"text\" x-model=\"name\"> <button @click=\"$store.todo.emit({operation:&#39;add&#39;,value:{id:&#39;&#39;,name:name,open:false}})\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var4 := `+`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></div><div x-data=\"$store.todo.state\" x-init=\"$store.todo.emit({operation:&#39;get&#39;})\" class=\"todo-list\"><ul><template x-for=\"todo in todos\"><li><input type=\"checkbox\" :value=\"todo.open\" @change=\"$store.todo.emit({operation:&#39;toggle&#39;,value:todo.id})\"> <span x-text=\"todo.name\"></span> <button @click=\"$store.todo.emit({operation:&#39;remove&#39;,value:todo.id})\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</style>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var5 := `X`
+		templ_7745c5c3_Err = components.CheckboxStyle().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</head><body><div class=\"app\"><div class=\"app-wrapper\"><div x-data=\"{name:&#39;&#39;}\" class=\"todo-input\"><input type=\"text\" x-model=\"name\"> <button @click=\"$store.todo.emit({operation:&#39;add&#39;,value:{id:&#39;&#39;,name:name,open:false}})\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var5 := `+`
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></li></template></ul></div></div></div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></div><div x-data=\"$store.todo.state\" x-init=\"$store.todo.emit({operation:&#39;get&#39;})\" class=\"todo-list\"><template x-for=\"todo in todos\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = components.Checkbox(components.CheckboxArguments{
+			Data:     "todo",
+			ID:       "id",
+			Label:    "name",
+			Value:    "open",
+			OnChange: "$store.todo.emit({operation:'toggle',value:id})",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button @click=\"$store.todo.emit({operation:&#39;remove&#39;,value:todo.id})\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var6 := `X`
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></template></div></div></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

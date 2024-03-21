@@ -1,12 +1,15 @@
 package template
 
+import "github.com/nodejayes/go-alpinejs-handler-poc/components"
+
 templ Index(alpineStoreScripts string) {
   <!DOCTYPE html>
   <html>
     <head>
       <title>Todo App</title>
       @templ.Raw(alpineStoreScripts)
-      <style>
+      <script defer src="https://unpkg.com/alpinejs-component@latest/dist/component.min.js"></script>
+      <style type="text/css">
         * {
           font-family: system-ui;
           font-size: 15px;
@@ -25,6 +28,7 @@ templ Index(alpineStoreScripts string) {
           justify-content: center;
         }
       </style>
+      @components.CheckboxStyle()
     </head>
     <body>
       <div class="app">
@@ -34,15 +38,16 @@ templ Index(alpineStoreScripts string) {
             <button @click="$store.todo.emit({operation:'add',value:{id:'',name:name,open:false}})">+</button>
           </div>
           <div x-data="$store.todo.state" x-init="$store.todo.emit({operation:'get'})" class="todo-list">
-            <ul>
-              <template x-for="todo in todos">
-                <li>
-                  <input type="checkbox" :value="todo.open" @change="$store.todo.emit({operation:'toggle',value:todo.id})" />
-                  <span x-text="todo.name"></span>
-                  <button @click="$store.todo.emit({operation:'remove',value:todo.id})">X</button>
-                </li>
-              </template>
-            </ul>
+            <template x-for="todo in todos">
+              @components.Checkbox(components.CheckboxArguments{
+                Data: "todo",
+                ID: "id",
+                Label: "name",
+                Value: "open",
+                OnChange: "$store.todo.emit({operation:'toggle',value:id})",
+              })
+              <button @click="$store.todo.emit({operation:'remove',value:todo.id})">X</button>
+            </template>
           </div>
         </div>
       </div>

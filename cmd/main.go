@@ -27,7 +27,10 @@ func main() {
 	config := getConfig()
 	router := http.NewServeMux()
 	goalpinejshandler.Register(router, &config)
+
+
 	router.Handle("/counter", templ.Handler(template_counter.Index(goalpinejshandler.HeadScripts())))
 	router.Handle("/todo", templ.Handler(template_todo.Index(goalpinejshandler.HeadScripts())))
+	
 	http.ListenAndServe(":40000", router)
 }
