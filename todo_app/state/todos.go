@@ -30,7 +30,7 @@ func (ctx *Todo) Remove(id string) {
 	if idx < 0 {
 		return
 	}
-	ctx.Todos = slices.Delete(ctx.Todos, idx, 1)
+	ctx.Todos = append(ctx.Todos[:idx], ctx.Todos[idx+1:]...)
 }
 
 func (ctx *Todo) Toggle(id string) {

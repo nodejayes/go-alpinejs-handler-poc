@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-import "github.com/nodejayes/go-alpinejs-handler-poc/components"
+import "github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui"
 
 func Index(alpineStoreScripts string) templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -42,20 +42,11 @@ func Index(alpineStoreScripts string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<script defer src=\"https://unpkg.com/alpinejs-component@latest/dist/component.min.js\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style type=\"text/css\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var3 := ``
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</script><style type=\"text/css\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var4 := `
+		templ_7745c5c3_Var3 := `
         * {
           font-family: system-ui;
           font-size: 15px;
@@ -73,8 +64,14 @@ func Index(alpineStoreScripts string) templ.Component {
           align-items: center;
           justify-content: center;
         }
+        div.todo-input {
+          display: flex;
+        }
+        span.todo-display {
+          display: flex;
+        }
       `
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -82,25 +79,34 @@ func Index(alpineStoreScripts string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.CheckboxStyle().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = cosmic_ui.CheckboxStyle().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</head><body><div class=\"app\"><div class=\"app-wrapper\"><div x-data=\"{name:&#39;&#39;}\" class=\"todo-input\"><input type=\"text\" x-model=\"name\"> <button @click=\"$store.todo.emit({operation:&#39;add&#39;,value:{id:&#39;&#39;,name:name,open:false}})\">")
+		templ_7745c5c3_Err = cosmic_ui.ButtonStyle().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var5 := `+`
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
+		templ_7745c5c3_Err = cosmic_ui.AddButtonStyle().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></div><div x-data=\"$store.todo.state\" x-init=\"$store.todo.emit({operation:&#39;get&#39;})\" class=\"todo-list\"><template x-for=\"todo in todos\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</head><body><div class=\"app\"><div class=\"app-wrapper\"><div x-data=\"{name:&#39;&#39;}\" class=\"todo-input\"><input type=\"text\" x-model=\"name\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = components.Checkbox(components.CheckboxArguments{
-			Data:     "todo",
+		templ_7745c5c3_Err = cosmic_ui.AddButton(cosmic_ui.AddButtonArguments{
+			Label:   "'hinzufügen'",
+			OnClick: "$store.todo.emit({operation:'add',value:{id:'',name:name,open:false}})",
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div><div x-data=\"$store.todo.state\" x-init=\"$store.todo.emit({operation:&#39;get&#39;})\" class=\"todo-list\"><template x-for=\"todo in todos\"><span x-data=\"todo\" class=\"todo-display\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = cosmic_ui.Checkbox(cosmic_ui.CheckboxArguments{
 			ID:       "id",
 			Label:    "name",
 			Value:    "open",
@@ -109,16 +115,14 @@ func Index(alpineStoreScripts string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<button @click=\"$store.todo.emit({operation:&#39;remove&#39;,value:todo.id})\">")
+		templ_7745c5c3_Err = cosmic_ui.Button(cosmic_ui.ButtonArguments{
+			Content: cosmic_ui.Text("X"),
+			OnClick: "$store.todo.emit({operation:'remove',value:id})",
+		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Var6 := `X`
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></template></div></div></div></body></html>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</span></template></div></div></div></body></html>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
