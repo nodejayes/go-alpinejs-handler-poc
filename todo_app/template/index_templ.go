@@ -42,52 +42,7 @@ func Index(alpineStoreScripts string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<style type=\"text/css\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Var3 := `
-        * {
-          font-family: system-ui;
-          font-size: 15px;
-          margin: 0;
-          padding: 0;
-        }
-        html, body {
-          width: 100vw;
-          height: 100vh;
-        }
-        div.app {
-          display: flex;
-          width: 100vw;
-          height: 100vh;
-          align-items: center;
-          justify-content: center;
-        }
-        div.todo-input {
-          display: flex;
-        }
-        span.todo-display {
-          display: flex;
-        }
-      `
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</style>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = cosmic_ui.CheckboxStyle().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = cosmic_ui.ButtonStyle().Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = cosmic_ui.AddButtonStyle().Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templ.Raw(cosmic_ui.GetStyles()).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

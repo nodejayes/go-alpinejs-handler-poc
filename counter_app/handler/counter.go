@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -31,14 +30,12 @@ func (ctx *Counter) Authorized(msg goalpinejshandler.Message, res http.ResponseW
 	return nil
 }
 
-func (ctx *Counter) GetDefaultState() string {
-	stream, err := json.Marshal(state.Counter{
-		Value: 0,
-	})
-	if err != nil {
-		return ""
-	}
-	return string(stream)
+func (ctx *Counter) GetDefaultState() any {
+	return state.NewCounter()
+}
+
+func (ctx *Counter) OnDestroy(clientID string) {
+	di.Destroy[state.Counter](clientID)
 }
 
 func (ctx *Counter) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {

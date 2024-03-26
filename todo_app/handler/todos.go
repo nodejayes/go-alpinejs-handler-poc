@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -29,12 +28,12 @@ func (ctx *Todo) GetActionType() string {
 	return fmt.Sprintf("[%s] operation", ctx.GetName())
 }
 
-func (ctx *Todo) GetDefaultState() string {
-	stream, err := json.Marshal(di.Inject[state.Todo]())
-	if err != nil {
-		return ""
-	}
-	return string(stream)
+func (ctx *Todo) GetDefaultState() any {
+	return state.NewTodoState()
+}
+
+func (ctx *Todo) OnDestroy(clientID string) {
+	di.Destroy[state.Todo](clientID)
 }
 
 func (ctx *Todo) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
