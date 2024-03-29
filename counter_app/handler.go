@@ -1,51 +1,57 @@
-package handler
+package counter_app
 
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	anythingparsejson "github.com/nodejayes/anything-parse-json"
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
-	"github.com/nodejayes/go-alpinejs-handler-poc/counter_app/state"
 )
 
 type (
-	Counter          struct{}
+	CounterHandler   struct{}
 	CounterArguments struct {
 		Operation string `json:"operation"`
 		Value     int    `json:"value"`
 	}
 )
 
-func (ctx *Counter) GetName() string {
+func (ctx *CounterHandler) GetName() string {
 	return "counter"
 }
 
-func (ctx *Counter) GetActionType() string {
+func (ctx *CounterHandler) GetActionType() string {
 	return fmt.Sprintf("[%s] operation", ctx.GetName())
 }
 
-func (ctx *Counter) Authorized(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) error {
+func (ctx *CounterHandler) Authorized(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) error {
 	return nil
 }
 
-func (ctx *Counter) GetDefaultState() any {
-	return state.NewCounter()
+func (ctx *CounterHandler) GetDefaultState() any {
+	return NewCounter()
 }
 
-func (ctx *Counter) OnDestroy(clientID string) {
-	di.Destroy[state.Counter](clientID)
+func (ctx *CounterHandler) OnDestroy(clientID string, tools *goalpinejshandler.Tools) {
+	go func() {
+		time.Sleep(60 * time.Second)
+		if tools.HasConnections(clientID) {
+			return
+		}
+		di.Destroy[Counter](clientID)
+	}()
 }
 
-func (ctx *Counter) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
+func (ctx *CounterHandler) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
 	args, err := anythingparsejson.Parse[CounterArguments](msg.Payload)
 	if err != nil {
 		return
 	}
 
 	clientId := tools.GetClientId(req)
-	state := di.Inject[state.Counter](clientId)
+	state := di.Inject[Counter](clientId)
 	if state == nil {
 		return
 	}

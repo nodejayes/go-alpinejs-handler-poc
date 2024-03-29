@@ -1,12 +1,8 @@
-github.com/a-h/templ v0.2.639 h1:iNyjh6gllEshVDcj3taqtz7dltPKBtncvP+M8HNGdGQ=
-github.com/a-h/templ v0.2.639/go.mod h1:SA7mtYwVEajbIXFRh3vKdYm/4FYyLQAtPH1+KxzGPA8=
-github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
-github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
 github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/nodejayes/anything-parse-json v1.0.0 h1:5pF3U7DQ4O6Syyb+ds9e/5Bb1JOdDwbjboF9yy0cMJw=
 github.com/nodejayes/anything-parse-json v1.0.0/go.mod h1:4PbArvV7TMZXPPETxXA4GhdAeYoxlJZ0fWNtVhFMTNo=
 github.com/nodejayes/generic-di v1.2.3 h1:QYn6hACIVGE1wFZGWVH7L6DdpOjdJizVivV85r3DtBk=
 github.com/nodejayes/generic-di v1.2.3/go.mod h1:gS41F3bPawBKlvXtSUErsFlmlrOdOl4wNEvWRPK3zTg=
-github.com/nodejayes/go-alpinejs-handler v1.3.0 h1:T4sZyUcZr1mjxYIcMWqlQ9/3veuxPpS2h+ZaLTFL4mc=
-github.com/nodejayes/go-alpinejs-handler v1.3.0/go.mod h1:jR0WyYj+9RlMUKm+VWEd4mmAlqFrQRDeGOXxYkv2KzI=
+github.com/nodejayes/go-alpinejs-handler v1.5.2 h1:pDIyio5/1jeNEHm8d07E9zh9Tz5G9nBcv+Dm2FNTaZk=
+github.com/nodejayes/go-alpinejs-handler v1.5.2/go.mod h1:jR0WyYj+9RlMUKm+VWEd4mmAlqFrQRDeGOXxYkv2KzI=

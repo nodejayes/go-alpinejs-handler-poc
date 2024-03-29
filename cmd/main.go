@@ -1,21 +1,19 @@
 package main
 
 import (
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui"
+	"github.com/nodejayes/go-alpinejs-handler-poc/counter_app"
+	"github.com/nodejayes/go-alpinejs-handler-poc/todo_app"
 	"log"
 	"net/http"
 
-	"github.com/a-h/templ"
 	"github.com/nodejayes/go-alpinejs-handler"
-	handler_counter "github.com/nodejayes/go-alpinejs-handler-poc/counter_app/handler"
-	template_counter "github.com/nodejayes/go-alpinejs-handler-poc/counter_app/template"
-	handler_todo "github.com/nodejayes/go-alpinejs-handler-poc/todo_app/handler"
-	template_todo "github.com/nodejayes/go-alpinejs-handler-poc/todo_app/template"
 )
 
-func getHandler() []goalpinejshandler.ActionHandler {
-	return []goalpinejshandler.ActionHandler{
-		&handler_counter.Counter{},
-		&handler_todo.Todo{},
+func getPages() []goalpinejshandler.Page {
+	return []goalpinejshandler.Page{
+		counter_app.NewPage(),
+		todo_app.NewPage(),
 	}
 }
 
@@ -24,7 +22,7 @@ func getConfig() goalpinejshandler.Config {
 		ActionUrl:         "/action",
 		EventUrl:          "/events",
 		ClientIDHeaderKey: "clientId",
-		Handlers:          getHandler(),
+		Pages:             getPages(),
 	}
 }
 
@@ -32,10 +30,7 @@ func main() {
 	config := getConfig()
 	router := http.NewServeMux()
 	goalpinejshandler.Register(router, &config)
-
-	router.Handle("/counter", templ.Handler(template_counter.Index(goalpinejshandler.HeadScripts())))
-	router.Handle("/todo", templ.Handler(template_todo.Index(goalpinejshandler.HeadScripts())))
-
+	cosmic_ui.RegisterGlobalStyles()
 	err := http.ListenAndServe(":40000", router)
 	if err != nil {
 		log.Fatal(err)

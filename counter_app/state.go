@@ -1,4 +1,4 @@
-package state
+package counter_app
 
 import di "github.com/nodejayes/generic-di"
 

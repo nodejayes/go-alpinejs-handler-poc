@@ -1,42 +1,47 @@
-package handler
+package todo_app
 
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/google/uuid"
 	anythingparsejson "github.com/nodejayes/anything-parse-json"
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
-	"github.com/nodejayes/go-alpinejs-handler-poc/todo_app/data"
-	"github.com/nodejayes/go-alpinejs-handler-poc/todo_app/state"
 )
 
 type (
-	Todo          struct{}
+	TodoHandler   struct{}
 	TodoArguments struct {
 		Operation string `json:"operation"`
 		Value     any    `json:"value"`
 	}
 )
 
-func (ctx *Todo) GetName() string {
+func (ctx *TodoHandler) GetName() string {
 	return "todo"
 }
 
-func (ctx *Todo) GetActionType() string {
+func (ctx *TodoHandler) GetActionType() string {
 	return fmt.Sprintf("[%s] operation", ctx.GetName())
 }
 
-func (ctx *Todo) GetDefaultState() any {
-	return state.NewTodoState()
+func (ctx *TodoHandler) GetDefaultState() any {
+	return NewTodoState()
 }
 
-func (ctx *Todo) OnDestroy(clientID string) {
-	di.Destroy[state.Todo](clientID)
+func (ctx *TodoHandler) OnDestroy(clientID string, tools *goalpinejshandler.Tools) {
+	go func() {
+		time.Sleep(60 * time.Second)
+		if tools.HasConnections(clientID) {
+			return
+		}
+		di.Destroy[State](clientID)
+	}()
 }
 
-func (ctx *Todo) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
+func (ctx *TodoHandler) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
 	args, err := anythingparsejson.Parse[TodoArguments](msg.Payload)
 	if err != nil {
 		return
@@ -45,11 +50,11 @@ func (ctx *Todo) Handle(msg goalpinejshandler.Message, res http.ResponseWriter, 
 	if len(clientId) < 1 {
 		return
 	}
-	state := di.Inject[state.Todo](clientId)
+	state := di.Inject[State](clientId)
 
 	switch args.Operation {
 	case "add":
-		todoToAdd, err := anythingparsejson.Parse[data.Todo](args.Value)
+		todoToAdd, err := anythingparsejson.Parse[Todo](args.Value)
 		if err != nil {
 			return
 		}
