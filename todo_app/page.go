@@ -2,8 +2,10 @@ package todo_app
 
 import (
 	"fmt"
+	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/toaster"
 )
 
 const pageId = "todo"
@@ -18,6 +20,7 @@ type Page struct {
 	AddButton    goalpinejshandler.Component
 	TodoCheckbox goalpinejshandler.Component
 	DeleteButton goalpinejshandler.Component
+	Toaster      goalpinejshandler.Component
 }
 
 func NewPage() *Page {
@@ -42,6 +45,7 @@ func NewPage() *Page {
 			}),
 			OnClick: "$store.todo.emit({operation:'remove',value:id})",
 		}),
+		Toaster: toaster.NewToaster(),
 	}
 }
 
@@ -55,7 +59,8 @@ func (ctx *Page) Route() string {
 
 func (ctx *Page) Handlers() []goalpinejshandler.ActionHandler {
 	return []goalpinejshandler.ActionHandler{
-		&TodoHandler{},
+		di.Inject[TodoHandler](),
+		di.Inject[toaster.Handler](),
 	}
 }
 
@@ -73,6 +78,7 @@ func (ctx *Page) Render() string {
 	</head>
 	<body>
 	  <div class="app">
+		{{ .Paint .Toaster }}
 		<div class="app-wrapper">
 		  <div x-data="{name:''}" class="todo-input">
 			<input type="text" x-model="name" />

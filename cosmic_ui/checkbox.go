@@ -3,6 +3,7 @@ package cosmic_ui
 import (
 	"fmt"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 )
 
 func checkboxStyle() string {
@@ -64,14 +65,14 @@ type (
 )
 
 func NewCheckbox(args CheckboxArguments) *Checkbox {
-	goalpinejshandler.RegisterStyle(packageID, checkboxStyle())
+	goalpinejshandler.RegisterStyle(cosmic_ui_global.PackageID, checkboxStyle())
 	return &Checkbox{
 		Args: args,
 	}
 }
 
 func (ctx *Checkbox) Name() string {
-	return createName("checkbox")
+	return cosmic_ui_global.CreateName("checkbox")
 }
 
 func (ctx *Checkbox) Render() string {

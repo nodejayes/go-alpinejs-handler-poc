@@ -3,6 +3,7 @@ package cosmic_ui
 import (
 	"fmt"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 )
 
 func buttonStyle() string {
@@ -63,14 +64,14 @@ type (
 )
 
 func NewButton(args ButtonArguments) *Button {
-	goalpinejshandler.RegisterStyle(packageID, buttonStyle())
+	goalpinejshandler.RegisterStyle(cosmic_ui_global.PackageID, buttonStyle())
 	return &Button{
 		Args: args,
 	}
 }
 
 func (ctx *Button) Name() string {
-	return createName("button")
+	return cosmic_ui_global.CreateName("button")
 }
 
 func (ctx *Button) Render() string {

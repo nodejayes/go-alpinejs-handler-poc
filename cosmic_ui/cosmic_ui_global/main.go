@@ -1,14 +1,14 @@
-package cosmic_ui
+package cosmic_ui_global
 
 import (
 	"fmt"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 )
 
-const packageID = "cosmic_ui"
+const PackageID = "cosmic_ui"
 
 func RegisterGlobalStyles() {
-	goalpinejshandler.RegisterStyle(packageID, `
+	goalpinejshandler.RegisterStyle(PackageID, `
 	:root {
 		--fontFamily: system-ui;
 		--fontSize: 15px;
@@ -45,6 +45,6 @@ func RegisterGlobalStyles() {
 	}`)
 }
 
-func createName(name string) string {
-	return fmt.Sprintf("%s_%s", packageID, name)
+func CreateName(name string) string {
+	return fmt.Sprintf("%s_%s", PackageID, name)
 }

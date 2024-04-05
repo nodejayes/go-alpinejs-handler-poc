@@ -3,6 +3,7 @@ package cosmic_ui
 import (
 	"fmt"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 )
 
 func addButtonStyle() string {
@@ -88,7 +89,7 @@ type (
 )
 
 func NewAddButton(args AddButtonArguments) *AddButton {
-	goalpinejshandler.RegisterStyle(packageID, addButtonStyle())
+	goalpinejshandler.RegisterStyle(cosmic_ui_global.PackageID, addButtonStyle())
 	return &AddButton{
 		args: args,
 		Text: NewText(TextArguments{
@@ -99,7 +100,7 @@ func NewAddButton(args AddButtonArguments) *AddButton {
 }
 
 func (ctx *AddButton) Name() string {
-	return createName("add_button")
+	return cosmic_ui_global.CreateName("add_button")
 }
 
 func (ctx *AddButton) Render() string {

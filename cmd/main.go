@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 	"github.com/nodejayes/go-alpinejs-handler-poc/counter_app"
 	"github.com/nodejayes/go-alpinejs-handler-poc/todo_app"
 	"log"
@@ -30,7 +30,7 @@ func main() {
 	config := getConfig()
 	router := http.NewServeMux()
 	goalpinejshandler.Register(router, &config)
-	cosmic_ui.RegisterGlobalStyles()
+	cosmic_ui_global.RegisterGlobalStyles()
 	err := http.ListenAndServe(":40000", router)
 	if err != nil {
 		log.Fatal(err)

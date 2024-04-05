@@ -2,6 +2,7 @@ package cosmic_ui
 
 import (
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 )
 
 type (
@@ -24,7 +25,7 @@ func NewText(args TextArguments) *Text {
 }
 
 func (ctx *Text) Name() string {
-	return createName("text")
+	return cosmic_ui_global.CreateName("text")
 }
 
 func (ctx *Text) Render() string {
