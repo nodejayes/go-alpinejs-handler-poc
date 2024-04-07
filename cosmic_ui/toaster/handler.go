@@ -6,6 +6,7 @@ import (
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 	"net/http"
+	"time"
 )
 
 func init() {
@@ -48,7 +49,25 @@ func (ctx *Handler) Handle(msg goalpinejshandler.Message, res http.ResponseWrite
 
 	switch args.Operation {
 	case "add":
-		state.AddMessage(args.Value)
+		if args.Value.Ttl == 0 {
+			args.Value.Ttl = 5
+		}
+		args.Value = state.AddMessage(args.Value)
+		if args.Value.Ttl > -1 {
+			go func() {
+				time.Sleep(time.Duration(args.Value.Ttl) * time.Second)
+				state.RemoveMessage(args.Value)
+				messagePool.Add(goalpinejshandler.ChannelMessage{
+					ClientFilter: func(client goalpinejshandler.Client) bool {
+						return client.ID == clientId
+					},
+					Message: goalpinejshandler.Message{
+						Type:    fmt.Sprintf("[%s] update", ctx.GetName()),
+						Payload: state,
+					},
+				})
+			}()
+		}
 	case "remove":
 		state.RemoveMessage(args.Value)
 	}

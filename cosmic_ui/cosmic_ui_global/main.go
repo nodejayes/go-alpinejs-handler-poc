@@ -14,11 +14,16 @@ func RegisterGlobalStyles() {
 		--fontSize: 15px;
 		--borderColor: #34974d;
 		--borderSize: 1px;
+		--borderRadius: 4px;
 		--primaryColor: #3aa856;
 		--secondaryColor: #34974d;
 		--textColor: #fff;
 		--alternativeColor: #2e8644;
+		--dangerColor: red;
+		--warningColor: orange;
+		--successColor: green;
 		--baseMargin: 5px 8px;
+		--basePadding: 5px;
 	}
 	* {
 	  font-family: var(--fontFamily);

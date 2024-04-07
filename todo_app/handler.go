@@ -72,32 +72,37 @@ func (ctx *TodoHandler) Handle(msg goalpinejshandler.Message, res http.ResponseW
 			return
 		}
 		if len(todoToAdd.Name) < 3 {
-			ctx.Toaster.Handle(goalpinejshandler.Message{
-				Type: ctx.Toaster.GetActionType(),
-				Payload: toaster.HandlerArguments{
-					Operation: "add",
-					Value: toaster.Message{
-						Typ:     toaster.DangerType,
-						Message: fmt.Sprintf("Todo must have a label with min 3 Chars (%s)", uuid.NewString()),
-					},
-				},
-			}, res, req, messagePool, tools)
+			ctx.sendMessage(toaster.DangerType, "Activity must have a label with min 3 Chars", res, req, messagePool, tools)
 			return
 		}
 		todoToAdd.ID = uuid.NewString()
+		todoToAdd.Open = true
 		state.Add(todoToAdd)
+		ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("Activity %s added", todoToAdd.Name), res, req, messagePool, tools)
 	case "remove":
 		todoToRemoveId, err := anythingparsejson.Parse[string](args.Value)
 		if err != nil {
+			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
 			return
 		}
 		state.Remove(todoToRemoveId)
 	case "toggle":
 		todoToToggleId, err := anythingparsejson.Parse[string](args.Value)
 		if err != nil {
+			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
 			return
 		}
 		state.Toggle(todoToToggleId)
+		todo, err := state.Get(todoToToggleId)
+		if err != nil {
+			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+			return
+		}
+		activeLabel := "open"
+		if !todo.Open {
+			activeLabel = "finish"
+		}
+		ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("State of Activity %s was set to %s", todo.Name, activeLabel), res, req, messagePool, tools)
 	}
 
 	messagePool.Add(goalpinejshandler.ChannelMessage{
@@ -109,4 +114,17 @@ func (ctx *TodoHandler) Handle(msg goalpinejshandler.Message, res http.ResponseW
 			Payload: state,
 		},
 	})
+}
+
+func (ctx *TodoHandler) sendMessage(messageTyp, message string, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {
+	ctx.Toaster.Handle(goalpinejshandler.Message{
+		Type: ctx.Toaster.GetActionType(),
+		Payload: toaster.HandlerArguments{
+			Operation: "add",
+			Value: toaster.Message{
+				Typ:     messageTyp,
+				Message: message,
+			},
+		},
+	}, res, req, messagePool, tools)
 }

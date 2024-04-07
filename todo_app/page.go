@@ -36,7 +36,7 @@ func NewPage() *Page {
 		TodoCheckbox: cosmic_ui.NewCheckbox(cosmic_ui.CheckboxArguments{
 			ID:       "id",
 			Label:    "name",
-			Value:    "open",
+			Value:    "!open",
 			OnChange: "$store.todo.emit({operation:'toggle',value:id})",
 		}),
 		DeleteButton: cosmic_ui.NewButton(cosmic_ui.ButtonArguments{

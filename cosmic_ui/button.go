@@ -11,7 +11,6 @@ func buttonStyle() string {
 	button.button {
 	  background: rgba(207, 205, 205, 0.425);
 	  border: none;
-	  padding: 10px 20px;
 	  display: inline-block;
 	  font-size: 15px;
 	  font-weight: 600;
@@ -89,7 +88,7 @@ func (ctx *Button) Render() string {
 	}
 	styleHeight := "40px"
 	if len(ctx.Args.Height) > 0 {
-		styleWidth = ctx.Args.Height
+		styleHeight = ctx.Args.Height
 	}
 	styles := fmt.Sprintf(` style="height:%[1]s;width:%[2]s"`, styleHeight, styleWidth)
 

@@ -1,6 +1,7 @@
 package todo_app
 
 import (
+	"fmt"
 	"slices"
 
 	di "github.com/nodejayes/generic-di"
@@ -18,6 +19,14 @@ func NewTodoState() *State {
 	return &State{
 		Todos: make([]Todo, 0),
 	}
+}
+
+func (ctx *State) Get(id string) (Todo, error) {
+	idx := slices.IndexFunc(ctx.Todos, func(todo Todo) bool { return todo.ID == id })
+	if idx < 0 || idx > len(ctx.Todos)-1 {
+		return Todo{}, fmt.Errorf("todo was not found")
+	}
+	return ctx.Todos[idx], nil
 }
 
 func (ctx *State) Add(todo Todo) {
