@@ -44,6 +44,18 @@ div.cosmic-ui-toaster-wrapper div.message div.close {
 	height: 25px;
 	margin: var(--baseMargin);
 }
+.cosmic-ui-toaster-animate-in-base {
+	transition: transform 300ms ease-in;
+}
+.cosmic-ui-toaster-animate-out-base {
+	transition: transform 300ms ease-out;
+}
+.cosmic-ui-toaster-animate-in {
+	translate: transformX(0);
+}
+.cosmic-ui-toaster-animate-out {
+	translate: transformX(200%);
+}
 `
 }
 
@@ -58,9 +70,9 @@ type Toaster struct {
 func NewToaster() *Toaster {
 	goalpinejshandler.RegisterStyle(cosmic_ui_global.PackageID, style())
 	return &Toaster{
-		SuccessIcon:   icons.NewSuccessIcon(),
-		AttentionIcon: icons.NewAttentionIcon(),
-		StopIcon:      icons.NewStopIcon(),
+		SuccessIcon:   icons.NewSuccessIcon(icons.SuccessIconArguments{Color: "green"}),
+		AttentionIcon: icons.NewAttentionIcon(icons.AttentionIconArguments{Color: "orange"}),
+		StopIcon:      icons.NewStopIcon(icons.StopIconArguments{Color: "red"}),
 		CloseButton: cosmic_ui.NewButton(cosmic_ui.ButtonArguments{
 			Content: cosmic_ui.NewText(cosmic_ui.TextArguments{
 				Content: "X",
@@ -78,15 +90,12 @@ func (ctx *Toaster) Name() string {
 
 func (ctx *Toaster) Render() string {
 	return fmt.Sprintf(`
-<div class="cosmic-ui-toaster-wrapper" x-data="{messages: $store.%[1]s.state.messages}">
+<div class="cosmic-ui-toaster-wrapper" x-data="$store.%[1]s.state">
 	<template x-for="msg in messages" :key="msg.id">
-		<div class="message" :class="msg.typ" 
-			 x-transition:enter="transition ease-out duration-300"
-			 x-transition:enter-start="transform opacity-0 -translate-x-10"
-			 x-transition:enter-end="transform opacity-100 translate-x-0"
-			 x-transition:leave="transition ease-in duration-300"
-			 x-transition:leave-start="transform opacity-100 translate-x-0"
-			 x-transition:leave-end="transform opacity-0 -translate-x-10">
+		<div class="message" :class="msg.typ"
+			 x-show="msg.open"
+             x-init="$nextTick(()=>{msg.open=true;$store.%[1]s.emit({operation:'animation_start',value:msg})})"
+             x-transition.duration.300>
 			<div class="icon">
 				<template x-if="msg.typ === 'danger'">
 					{{ .Paint .StopIcon }}

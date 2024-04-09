@@ -1,16 +1,28 @@
 package icons
 
 import (
+	"fmt"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 )
 
-type SuccessIcon struct {
-	goalpinejshandler.ViewTools
-}
+type (
+	SuccessIcon struct {
+		goalpinejshandler.ViewTools
+		Color string
+	}
+	SuccessIconArguments struct {
+		Color string
+	}
+)
 
-func NewSuccessIcon() *SuccessIcon {
-	return &SuccessIcon{}
+func NewSuccessIcon(args SuccessIconArguments) *SuccessIcon {
+	if len(args.Color) < 1 {
+		args.Color = "#000000"
+	}
+	return &SuccessIcon{
+		Color: args.Color,
+	}
 }
 
 func (ctx *SuccessIcon) Name() string {
@@ -18,8 +30,8 @@ func (ctx *SuccessIcon) Name() string {
 }
 
 func (ctx *SuccessIcon) Render() string {
-	return `
-<svg fill="#000000" viewBox="0 0 36 36" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+	return fmt.Sprintf(`
+<svg fill="%[1]s" viewBox="0 0 36 36" version="1.1" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 	<g id="SVGRepo_bgCarrier" stroke-width="0"></g>
 	<g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
 	<g id="SVGRepo_iconCarrier">
@@ -29,5 +41,5 @@ func (ctx *SuccessIcon) Render() string {
 		<rect x="0" y="0" width="36" height="36" fill-opacity="0"></rect>
 	</g>
 </svg>
-`
+`, ctx.Color)
 }

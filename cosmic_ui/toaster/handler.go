@@ -16,7 +16,9 @@ func init() {
 const name = "cosmic_toaster"
 
 type (
-	Handler          struct{}
+	Handler struct {
+		messageRemoveAnimationTime time.Duration
+	}
 	HandlerArguments struct {
 		Operation string  `json:"operation"`
 		Value     Message `json:"value"`
@@ -24,7 +26,9 @@ type (
 )
 
 func NewHandler() *Handler {
-	return &Handler{}
+	return &Handler{
+		messageRemoveAnimationTime: 300 * time.Millisecond,
+	}
 }
 
 func (ctx *Handler) GetName() string {
@@ -56,20 +60,29 @@ func (ctx *Handler) Handle(msg goalpinejshandler.Message, res http.ResponseWrite
 		if args.Value.Ttl > -1 {
 			go func() {
 				time.Sleep(time.Duration(args.Value.Ttl) * time.Second)
-				state.RemoveMessage(args.Value)
+				removeMessage(args.Value, state, messagePool, clientId, ctx.GetName(), ctx.messageRemoveAnimationTime)
 				messagePool.Add(goalpinejshandler.ChannelMessage{
 					ClientFilter: func(client goalpinejshandler.Client) bool {
 						return client.ID == clientId
 					},
 					Message: goalpinejshandler.Message{
-						Type:    fmt.Sprintf("[%s] update", ctx.GetName()),
+						Type:    fmt.Sprintf("[%s] update", name),
 						Payload: state,
 					},
 				})
 			}()
 		}
+		if state.MessagePoolFull() {
+			oldestMessage, err := state.GetOldestMessage()
+			if err == nil {
+				removeMessage(oldestMessage, state, messagePool, clientId, ctx.GetName(), ctx.messageRemoveAnimationTime)
+			}
+		}
 	case "remove":
-		state.RemoveMessage(args.Value)
+		removeMessage(args.Value, state, messagePool, clientId, ctx.GetName(), ctx.messageRemoveAnimationTime)
+	case "animation_start":
+		state.UpdateOpenState(args.Value.ID, args.Value.Open)
+		return
 	}
 
 	messagePool.Add(goalpinejshandler.ChannelMessage{
@@ -81,4 +94,21 @@ func (ctx *Handler) Handle(msg goalpinejshandler.Message, res http.ResponseWrite
 			Payload: state,
 		},
 	})
+}
+
+func removeMessage(message Message, state *State, messagePool *goalpinejshandler.MessagePool, clientId string, name string, animationTime time.Duration) {
+	state.UpdateOpenState(message.ID, false)
+	go func() {
+		time.Sleep(animationTime)
+		state.RemoveMessage(message)
+		messagePool.Add(goalpinejshandler.ChannelMessage{
+			ClientFilter: func(client goalpinejshandler.Client) bool {
+				return client.ID == clientId
+			},
+			Message: goalpinejshandler.Message{
+				Type:    fmt.Sprintf("[%s] update", name),
+				Payload: state,
+			},
+		})
+	}()
 }
