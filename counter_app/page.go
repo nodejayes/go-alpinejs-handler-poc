@@ -89,6 +89,7 @@ func (ctx *Page) Render() string {
 	  <html>
 		<head>
 		  <title>Counter App</title>
+			<link rel="icon" type="image/x-icon" href="/icons/counter_favicon.ico">
 		  {{ template "alpinejs" }}
 		  {{ template "alpinejs_handler_lib" }}
 		  {{ template "alpinejs_handler_stores" }}

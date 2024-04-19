@@ -24,6 +24,7 @@ func RegisterGlobalStyles() {
 		--successColor: green;
 		--baseMargin: 5px 8px;
 		--basePadding: 5px;
+		--baseElementHeight: 40px;
 	}
 	* {
 	  font-family: var(--fontFamily);

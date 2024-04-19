@@ -2,9 +2,11 @@ package todo_app
 
 import (
 	"fmt"
+
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
 	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/input"
 	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/toaster"
 )
 
@@ -21,6 +23,7 @@ type Page struct {
 	TodoCheckbox goalpinejshandler.Component
 	DeleteButton goalpinejshandler.Component
 	Toaster      goalpinejshandler.Component
+	ActionInput  goalpinejshandler.Component
 }
 
 func NewPage() *Page {
@@ -46,6 +49,10 @@ func NewPage() *Page {
 			OnClick: "$store.todo.emit({operation:'remove',value:id})",
 		}),
 		Toaster: toaster.NewToaster(),
+		ActionInput: input.NewTextInput(input.TextInputArguments{
+			Placeholder: "Todo",
+			Model:       "name",
+		}),
 	}
 }
 
@@ -70,7 +77,8 @@ func (ctx *Page) Render() string {
 	<html>
 	<head>
 	  <title>Todo App</title>
-      {{ template "alpinejs" }}
+		<link rel="icon" type="image/x-icon" href="/icons/todo_favicon.ico">
+    {{ template "alpinejs" }}
 	  {{ template "alpinejs_handler_lib" }}
 	  {{ template "alpinejs_handler_stores" }}
 	  {{ .Style "cosmic_ui" }}
@@ -81,8 +89,8 @@ func (ctx *Page) Render() string {
 		{{ .Paint .Toaster }}
 		<div class="app-wrapper">
 		  <div x-data="{name:''}" class="todo-input">
-			<input type="text" x-model="name" />
-			{{ .Paint .AddButton }}
+				{{ .Paint .ActionInput }}
+				{{ .Paint .AddButton }}
 		  </div>
 		  <div x-data="$store.todo.state" x-init="$store.todo.emit({operation:'get'})" class="todo-list">
 			<template x-for="todo in todos">
