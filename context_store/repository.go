@@ -89,6 +89,18 @@ func Get[T RepositoryContext](domain string, model T, conditions func(builder Co
 	return result, db.Error
 }
 
+func GetArchive[T RepositoryContext](domain string, model T, conditions func(builder ConditionBuilder) ConditionBuilder) ([]T, error) {
+	var result = make([]T, 0)
+	db, err := getOrOpen(domain, model.GetContext())
+	if err != nil {
+		return result, err
+	}
+	builder := NewConditionBuilder(db.Unscoped())
+	q := conditions(builder)
+	q.Find(&result)
+	return result, db.Error
+}
+
 func Save[T RepositoryContext](domain string, model T) (T, error) {
 	var result T
 	db, err := getOrOpen(domain, model.GetContext())

@@ -89,7 +89,20 @@ func TestInit(t *testing.T) {
 		t.Error(err)
 	}
 	if len(result) > 0 {
-		t.Errorf("expect Todo was deleted")
+		t.Errorf("expect Todo was archived")
+	}
+	archiveResult, err := contextstore.GetArchive(domain, &TestTodo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder.Where(&TestTodo{Name: "Todo1"})
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	archiveLen := len(archiveResult)
+	if archiveLen != 1 {
+		t.Errorf("expect Todo was found in archive")
+	}
+	if archiveResult[0].ID != todo1.ID {
+		t.Errorf("expect the archived Todo to found in archive but ID %v not equals %v", archiveResult[0].ID, todo1.ID)
 	}
 
 	err = contextstore.Delete(domain, &TestTodo{}, todo1.ID)
@@ -151,7 +164,7 @@ func TestBulkCreate(t *testing.T) {
 		t.Errorf("%v/%v todos selected", len(sel), 2)
 	}
 	for _, selection := range sel {
-		if selection.Name == "T1" || selection.Name == "T3" {
+		if selection.Name != "T1" && selection.Name != "T3" {
 			t.Errorf("only T1 or T3 must in selection name found %v", selection.Name)
 		}
 	}
