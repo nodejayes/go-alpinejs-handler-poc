@@ -28,8 +28,8 @@ func (ctx *TestTodo) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func Test_Init(t *testing.T) {
-	domain := "testinstance"
+func TestInit(t *testing.T) {
+	domain := "TestInit"
 	usedModels := make([]contextstore.RepositoryContext, 0)
 	usedModels = append(usedModels, &TestTodo{})
 
@@ -56,9 +56,9 @@ func Test_Init(t *testing.T) {
 		t.Errorf("expect Todo Name to be %v but was %v", todo1.Name, inserted.Name)
 	}
 
-	result, err := contextstore.Get(domain, &TestTodo{}, &TestTodo{
-		Name: "T1",
-	}, 0, 0)
+	result, err := contextstore.Get(domain, &TestTodo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder.Where(&TestTodo{Name: "T1"})
+	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -82,9 +82,9 @@ func Test_Init(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	result, err = contextstore.Get(domain, &TestTodo{}, &TestTodo{
-		Name: "Todo1",
-	}, 0, 0)
+	result, err = contextstore.Get(domain, &TestTodo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder.Where(&TestTodo{Name: "Todo1"})
+	})
 	if err != nil {
 		t.Error(err)
 	}
@@ -96,13 +96,63 @@ func Test_Init(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	result, err = contextstore.Get(domain, &TestTodo{}, &TestTodo{
-		Name: "Todo1",
-	}, 0, 0)
+	result, err = contextstore.Get(domain, &TestTodo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder.Where(&TestTodo{Name: "Todo1"})
+	})
 	if err != nil {
 		t.Error(err)
 	}
 	if len(result) > 0 {
 		t.Errorf("expect Todo was deleted")
+	}
+}
+
+func TestBulkCreate(t *testing.T) {
+	domain := "TestBulkCreate"
+	todos := []*TestTodo{
+		{
+			Name: "T1",
+			Open: true,
+		},
+		{
+			Name: "T2",
+			Open: true,
+		},
+		{
+			Name: "T3",
+			Open: true,
+		},
+	}
+
+	contextstore.Register(&TestTodo{})
+	defer contextstore.Clear()
+	contextstore.Migrate(domain, true, &TestTodo{})
+
+	inserted, err := contextstore.BulkCreate(domain, &TestTodo{}, todos)
+	if err != nil {
+		t.Error(err)
+	}
+	if len(inserted) != len(todos) {
+		t.Errorf("%v/%v todos inserted", len(inserted), len(todos))
+	}
+	for _, todo := range inserted {
+		if len(todo.ID) < 1 {
+			t.Errorf("missing ID on Todo %v", todo.Name)
+		}
+	}
+
+	sel, err := contextstore.Get(domain, &TestTodo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder.Where("name IN ?", "T1", "T3")
+	})
+	if err != nil {
+		t.Error(err)
+	}
+	if len(sel) != 2 {
+		t.Errorf("%v/%v todos selected", len(sel), 2)
+	}
+	for _, selection := range sel {
+		if selection.Name == "T1" || selection.Name == "T3" {
+			t.Errorf("only T1 or T3 must in selection name found %v", selection.Name)
+		}
 	}
 }

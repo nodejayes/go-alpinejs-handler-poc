@@ -10,15 +10,26 @@ import (
 	"gorm.io/gorm"
 )
 
-type RepositoryContext interface {
-	GetContext() string
-	TableName() string
-}
+type (
+	RepositoryContext interface {
+		GetContext() string
+		TableName() string
+	}
+	GetOptions struct {
+		Limit int
+		Skip  int
+	}
+)
 
 var (
-	models []RepositoryContext = make([]RepositoryContext, 0)
-	dbs    map[string]*gorm.DB = make(map[string]*gorm.DB)
+	models         []RepositoryContext = make([]RepositoryContext, 0)
+	dbs            map[string]*gorm.DB = make(map[string]*gorm.DB)
+	dataFolderName                     = "data"
 )
+
+func SetDataFolder(name string) {
+	dataFolderName = name
+}
 
 func Register(modelsToRegister ...RepositoryContext) {
 	for _, m := range modelsToRegister {
@@ -66,18 +77,16 @@ func Migrate(domain string, clear bool, models ...RepositoryContext) error {
 	return nil
 }
 
-func Get[T RepositoryContext](domain string, model T, filter T, skip, limit int) ([]T, error) {
+func Get[T RepositoryContext](domain string, model T, conditions func(builder ConditionBuilder) ConditionBuilder) ([]T, error) {
 	var result = make([]T, 0)
 	db, err := getOrOpen(domain, model.GetContext())
 	if err != nil {
 		return result, err
 	}
-	q := db.Model(&model).Offset(skip)
-	if limit > 0 {
-		q = q.Limit(limit)
-	}
-	q.Find(&result, filter)
-	return result, nil
+	builder := NewConditionBuilder(db)
+	q := conditions(builder)
+	q.Find(&result)
+	return result, db.Error
 }
 
 func Save[T RepositoryContext](domain string, model T) (T, error) {
@@ -106,8 +115,8 @@ func Save[T RepositoryContext](domain string, model T) (T, error) {
 	return model, nil
 }
 
-func BulkCreate[T RepositoryContext](domain string, model T, instances []T) (T, error) {
-	var result T
+func BulkCreate[T RepositoryContext](domain string, model T, instances []T) ([]T, error) {
+	result := make([]T, 0)
 	db, err := getOrOpen(domain, model.GetContext())
 	if err != nil {
 		return result, err
@@ -119,7 +128,7 @@ func BulkCreate[T RepositoryContext](domain string, model T, instances []T) (T, 
 	if createResult.RowsAffected < int64(len(instances)) {
 		return result, fmt.Errorf("%v/%v instances inserted", createResult.RowsAffected, len(instances))
 	}
-	return model, nil
+	return instances, nil
 }
 
 func Archive[T RepositoryContext, K any](domain string, model T, ids ...K) error {
@@ -226,5 +235,5 @@ func getDataFolder(domain string) (string, error) {
 		return "", err
 	}
 	exeDir := filepath.Dir(exePath)
-	return fmt.Sprintf("%s/data/%s", exeDir, domain), nil
+	return fmt.Sprintf("%s/%s/%s", exeDir, dataFolderName, domain), nil
 }
