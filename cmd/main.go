@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	contextstore "github.com/nodejayes/context-store"
 	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/cosmic_ui_global"
 	"github.com/nodejayes/go-alpinejs-handler-poc/counter_app"
 	"github.com/nodejayes/go-alpinejs-handler-poc/img"
@@ -44,6 +45,8 @@ func linkIcons(router *http.ServeMux) {
 }
 
 func main() {
+	defer contextstore.Clear()
+	
 	config := getConfig()
 	router := http.NewServeMux()
 	goalpinejshandler.Register(router, &config)

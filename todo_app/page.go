@@ -92,7 +92,7 @@ func (ctx *Page) Render() string {
 				{{ .Paint .ActionInput }}
 				{{ .Paint .AddButton }}
 		  </div>
-		  <div x-data="$store.todo.state" x-init="$store.todo.emit({operation:'get'})" class="todo-list">
+		  <div x-data="$store.todo.state" x-init="$store.todo.emit({operation:'load'})" class="todo-list">
 			<template x-for="todo in todos">
 			  <span x-data="todo" class="todo-display">
 			  {{ .Paint .TodoCheckbox }}

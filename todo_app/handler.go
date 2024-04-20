@@ -2,11 +2,12 @@ package todo_app
 
 import (
 	"fmt"
-	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/toaster"
 	"net/http"
 	"time"
 
-	"github.com/google/uuid"
+	contextstore "github.com/nodejayes/context-store"
+	"github.com/nodejayes/go-alpinejs-handler-poc/cosmic_ui/toaster"
+
 	anythingparsejson "github.com/nodejayes/anything-parse-json"
 	di "github.com/nodejayes/generic-di"
 	goalpinejshandler "github.com/nodejayes/go-alpinejs-handler"
@@ -63,46 +64,26 @@ func (ctx *TodoHandler) Handle(msg goalpinejshandler.Message, res http.ResponseW
 	if len(clientId) < 1 {
 		return
 	}
+	contextstore.Migrate(clientId, false, &Todo{})
 	state := di.Inject[State](clientId)
 
 	switch args.Operation {
+	case "load":
+		if !ctx.loadTodos(clientId, res, req, messagePool, tools, state) {
+			return
+		}
 	case "add":
-		todoToAdd, err := anythingparsejson.Parse[Todo](args.Value)
-		if err != nil {
+		if !ctx.addTodo(clientId, args, res, req, messagePool, tools, state) {
 			return
 		}
-		if len(todoToAdd.Name) < 3 {
-			ctx.sendMessage(toaster.DangerType, "Activity must have a label with min 3 Chars", res, req, messagePool, tools)
-			return
-		}
-		todoToAdd.ID = uuid.NewString()
-		todoToAdd.Open = true
-		state.Add(todoToAdd)
-		ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("Activity %s added", todoToAdd.Name), res, req, messagePool, tools)
 	case "remove":
-		todoToRemoveId, err := anythingparsejson.Parse[string](args.Value)
-		if err != nil {
-			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		if !ctx.removeTodo(clientId, args, res, req, messagePool, tools, state) {
 			return
 		}
-		state.Remove(todoToRemoveId)
 	case "toggle":
-		todoToToggleId, err := anythingparsejson.Parse[string](args.Value)
-		if err != nil {
-			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		if !ctx.toggleTodo(clientId, args, res, req, messagePool, tools, state) {
 			return
 		}
-		state.Toggle(todoToToggleId)
-		todo, err := state.Get(todoToToggleId)
-		if err != nil {
-			ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
-			return
-		}
-		activeLabel := "open"
-		if !todo.Open {
-			activeLabel = "finish"
-		}
-		ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("State of Activity %s was set to %s", todo.Name, activeLabel), res, req, messagePool, tools)
 	}
 
 	messagePool.Add(goalpinejshandler.ChannelMessage{
@@ -114,6 +95,78 @@ func (ctx *TodoHandler) Handle(msg goalpinejshandler.Message, res http.ResponseW
 			Payload: state,
 		},
 	})
+}
+
+func (ctx *TodoHandler) loadTodos(clientId string, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools, state *State) bool {
+	todos, err := contextstore.Get(clientId, &Todo{}, func(builder contextstore.ConditionBuilder) contextstore.ConditionBuilder {
+		return builder
+	})
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	state.LoadTodos(todos)
+	return true
+}
+
+func (ctx *TodoHandler) addTodo(clientId string, args TodoArguments, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools, state *State) bool {
+	todoToAdd, err := anythingparsejson.Parse[*Todo](args.Value)
+	if err != nil {
+		return false
+	}
+	if len(todoToAdd.Name) < 3 {
+		ctx.sendMessage(toaster.DangerType, "Activity must have a label with min 3 Chars", res, req, messagePool, tools)
+		return false
+	}
+	todoToAdd.Open = true
+	todoToAdd, err = contextstore.Save(clientId, todoToAdd)
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	state.Add(todoToAdd)
+	ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("Activity %s added", todoToAdd.Name), res, req, messagePool, tools)
+	return true
+}
+
+func (ctx *TodoHandler) removeTodo(clientId string, args TodoArguments, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools, state *State) bool {
+	todoToRemoveId, err := anythingparsejson.Parse[string](args.Value)
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	err = contextstore.Delete(clientId, &Todo{}, []string{todoToRemoveId})
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	state.Remove(todoToRemoveId)
+	return true
+}
+
+func (ctx *TodoHandler) toggleTodo(clientId string, args TodoArguments, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools, state *State) bool {
+	todoToToggleId, err := anythingparsejson.Parse[string](args.Value)
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	state.Toggle(todoToToggleId)
+	todo, err := state.Get(todoToToggleId)
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	todo, err = contextstore.Save(clientId, todo)
+	if err != nil {
+		ctx.sendMessage(toaster.DangerType, err.Error(), res, req, messagePool, tools)
+		return false
+	}
+	activeLabel := "open"
+	if !todo.Open {
+		activeLabel = "finish"
+	}
+	ctx.sendMessage(toaster.SuccessType, fmt.Sprintf("State of Activity %s was set to %s", todo.Name, activeLabel), res, req, messagePool, tools)
+	return true
 }
 
 func (ctx *TodoHandler) sendMessage(messageTyp, message string, res http.ResponseWriter, req *http.Request, messagePool *goalpinejshandler.MessagePool, tools *goalpinejshandler.Tools) {

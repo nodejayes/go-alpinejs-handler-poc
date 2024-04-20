@@ -12,7 +12,10 @@ require (
 	github.com/nodejayes/anything-parse-json v1.0.0
 )
 
-require github.com/mattn/go-sqlite3 v1.14.17 // indirect
+require (
+	github.com/mattn/go-sqlite3 v1.14.22 // indirect
+	github.com/nodejayes/context-store v1.0.0 // indirect
+)
 
 require (
 	github.com/jinzhu/inflection v1.0.0 // indirect

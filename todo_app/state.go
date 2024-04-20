@@ -12,29 +12,33 @@ func init() {
 }
 
 type State struct {
-	Todos []Todo `json:"todos"`
+	Todos []*Todo `json:"todos"`
 }
 
 func NewTodoState() *State {
 	return &State{
-		Todos: make([]Todo, 0),
+		Todos: make([]*Todo, 0),
 	}
 }
 
-func (ctx *State) Get(id string) (Todo, error) {
-	idx := slices.IndexFunc(ctx.Todos, func(todo Todo) bool { return todo.ID == id })
+func (ctx *State) LoadTodos(todos []*Todo) {
+	ctx.Todos = todos
+}
+
+func (ctx *State) Get(id string) (*Todo, error) {
+	idx := slices.IndexFunc(ctx.Todos, func(todo *Todo) bool { return todo.ID == id })
 	if idx < 0 || idx > len(ctx.Todos)-1 {
-		return Todo{}, fmt.Errorf("todo was not found")
+		return nil, fmt.Errorf("todo was not found")
 	}
 	return ctx.Todos[idx], nil
 }
 
-func (ctx *State) Add(todo Todo) {
+func (ctx *State) Add(todo *Todo) {
 	ctx.Todos = append(ctx.Todos, todo)
 }
 
 func (ctx *State) Remove(id string) {
-	idx := slices.IndexFunc(ctx.Todos, func(todo Todo) bool { return todo.ID == id })
+	idx := slices.IndexFunc(ctx.Todos, func(todo *Todo) bool { return todo.ID == id })
 	if idx < 0 {
 		return
 	}
@@ -42,7 +46,7 @@ func (ctx *State) Remove(id string) {
 }
 
 func (ctx *State) Toggle(id string) {
-	idx := slices.IndexFunc(ctx.Todos, func(todo Todo) bool { return todo.ID == id })
+	idx := slices.IndexFunc(ctx.Todos, func(todo *Todo) bool { return todo.ID == id })
 	if idx < 0 {
 		return
 	}
